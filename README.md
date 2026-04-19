@@ -20,3 +20,4 @@ Projeto em `Next.js` com `Supabase` para autenticao, dashboard comercial e cadas
 - `/login`
 - `/home`
 - `/cadastro`
+Deploy trigger
