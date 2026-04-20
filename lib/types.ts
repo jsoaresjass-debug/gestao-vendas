@@ -109,6 +109,19 @@ export type SaleHistoryRow = DashboardRecentSaleRow & {
   paidInstallmentCount: number;
   /** Valor médio nominal da parcela no plano (soma dos amount / total de parcelas). */
   installmentNominalValue: number;
+  /** Próxima parcela em aberto (para dar baixa rápido). */
+  nextInstallmentId?: string | null;
+  nextInstallmentLabel?: string | null;
+  nextInstallmentDueDate?: string | null;
+  isNextInstallmentOverdue?: boolean;
+  /** Parcelas em aberto para seleção múltipla na Home. */
+  openInstallments?: Array<{
+    id: string;
+    label: string;
+    remaining: number;
+    dueDate: string;
+    isOverdue: boolean;
+  }>;
 };
 
 export type DashboardOpenBalanceRow = {

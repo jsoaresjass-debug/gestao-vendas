@@ -10,6 +10,11 @@ type ActionState = {
   success?: string;
 };
 
+const deleteSaleItemSchema = z.object({
+  saleId: z.uuid("Venda nao identificada."),
+  saleItemId: z.uuid("Item nao identificado."),
+});
+
 const saleSchema = z.object({
   customerId: z.uuid("Cliente nao identificada."),
   saleDate: z.string().min(1, "Informe a data da venda."),
@@ -59,6 +64,144 @@ function addDays(baseDate: string, daysToAdd: number) {
   const date = new Date(`${baseDate}T00:00:00`);
   date.setDate(date.getDate() + daysToAdd);
   return date.toISOString().slice(0, 10);
+}
+
+function toNumber(value: number | string | null | undefined) {
+  return Number(value ?? 0);
+}
+
+function getInstallmentStatus(amount: number, paidAmount: number, dueDate: string) {
+  if (paidAmount >= amount && amount > 0) {
+    return "paid" as const;
+  }
+
+  if (paidAmount > 0) {
+    return "partial" as const;
+  }
+
+  if (new Date(`${dueDate}T00:00:00`) < new Date()) {
+    return "overdue" as const;
+  }
+
+  return "pending" as const;
+}
+
+export async function deleteSaleItemAction(formData: FormData) {
+  const parsed = deleteSaleItemSchema.safeParse({
+    saleId: formData.get("sale_id"),
+    saleItemId: formData.get("sale_item_id"),
+  });
+
+  if (!parsed.success) {
+    return;
+  }
+
+  const supabase = await createSupabaseServerClient();
+
+  const { data: sale, error: saleError } = await supabase
+    .from("sales")
+    .select("id, total_amount, outstanding_amount, payment_status, due_date")
+    .eq("id", parsed.data.saleId)
+    .single();
+
+  if (saleError || !sale) {
+    return;
+  }
+
+  const { data: saleItem, error: itemError } = await supabase
+    .from("sale_items")
+    .select("id, sale_id, product_id, quantity, unit_price")
+    .eq("id", parsed.data.saleItemId)
+    .eq("sale_id", parsed.data.saleId)
+    .single();
+
+  if (itemError || !saleItem) {
+    return;
+  }
+
+  const itemTotal = toNumber(saleItem.unit_price) * toNumber(saleItem.quantity);
+  const oldTotal = toNumber(sale.total_amount);
+  const oldOutstanding = toNumber(sale.outstanding_amount);
+  const oldPaid = Math.max(oldTotal - oldOutstanding, 0);
+
+  const newTotal = Math.max(oldTotal - itemTotal, 0);
+  const newOutstanding = Math.max(newTotal - oldPaid, 0);
+
+  const { error: deleteError } = await supabase
+    .from("sale_items")
+    .delete()
+    .eq("id", saleItem.id);
+
+  if (deleteError) {
+    return;
+  }
+
+  // Restore stock (when the sale item is linked to a product).
+  if (saleItem.product_id) {
+    const { data: product, error: productError } = await supabase
+      .from("products")
+      .select("id, stock_quantity")
+      .eq("id", saleItem.product_id)
+      .single();
+
+    if (!productError && product) {
+      const updatedStock = toNumber(product.stock_quantity) + toNumber(saleItem.quantity);
+      await supabase
+        .from("products")
+        .update({ stock_quantity: updatedStock, updated_at: new Date().toISOString() })
+        .eq("id", product.id);
+    }
+  }
+
+  // Recalculate installments plan if it exists.
+  const { data: installments, error: installmentsError } = await supabase
+    .from("sale_installments")
+    .select("id, installment_number, total_installments, amount, paid_amount, due_date")
+    .eq("sale_id", parsed.data.saleId)
+    .order("installment_number", { ascending: true });
+
+  if (!installmentsError && installments && installments.length) {
+    const planCount = installments[0]?.total_installments ?? installments.length;
+    const planBase = newOutstanding > 0 ? newOutstanding : newTotal;
+    const newAmounts = splitAmount(planBase, planCount);
+
+    for (const installment of installments) {
+      const newAmount = newAmounts[(installment.installment_number ?? 1) - 1] ?? 0;
+      const paidAmount = Math.min(toNumber(installment.paid_amount), newAmount);
+      const status = getInstallmentStatus(newAmount, paidAmount, installment.due_date);
+
+      await supabase
+        .from("sale_installments")
+        .update({
+          amount: Number(newAmount.toFixed(2)),
+          paid_amount: Number(paidAmount.toFixed(2)),
+          status,
+        })
+        .eq("id", installment.id);
+    }
+  }
+
+  // Update sale payment status.
+  let paymentStatus: "paid" | "partial" | "pending" | "overdue" = "pending";
+  if (newOutstanding <= 0) {
+    paymentStatus = "paid";
+  } else if (sale.due_date && new Date(`${sale.due_date}T00:00:00`) < new Date()) {
+    paymentStatus = "overdue";
+  } else if (oldPaid > 0) {
+    paymentStatus = "partial";
+  }
+
+  await supabase
+    .from("sales")
+    .update({
+      total_amount: Number(newTotal.toFixed(2)),
+      outstanding_amount: Number(newOutstanding.toFixed(2)),
+      payment_status: paymentStatus,
+    })
+    .eq("id", parsed.data.saleId);
+
+  revalidatePath("/home");
+  revalidatePath("/cadastro");
 }
 
 export async function createSaleAction(

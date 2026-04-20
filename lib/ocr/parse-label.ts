@@ -18,21 +18,42 @@ function pickMostLikelyName(lines: string[]) {
   const candidates = lines
     .map((l) => l.trim())
     .filter(Boolean)
-    .filter((l) => !/(^|\s)(ref|cor|tam|tamanho)\s*[:\-]/i.test(l))
+    .filter((l) => !/(^|\s)(ref|cor|tam|tamanho|col|c[oó]d)\s*[:\-]/i.test(l))
     .filter((l) => !/^\d[\d\s\-]{6,}$/.test(l)) // mostly numeric lines
     .filter((l) => /[a-zA-ZÀ-ÿ]/.test(l))
     .map((l) => l.replace(/\s{2,}/g, " ").trim());
 
   if (!candidates.length) return undefined;
 
-  // Many labels split the name across 1-2 lines.
-  const first = candidates[0];
-  const second = candidates[1];
+  const scored = candidates
+    .map((line, index) => {
+      const upperRatio =
+        line.length > 0 ? (line.replace(/[^A-ZÀ-Ý]/g, "").length / line.length) : 0;
+      const hasWord = /(blusa|cal[cç]a|saia|vestido|jaqueta|camiseta|conjunto|short|bermuda|cropped|macac[aã]o|moletom|blazer|cardigan|sueter|su[eé]ter|casaco|kimono|body|regata|top|tshirt|t-shirt)/i.test(
+        line,
+      );
+      const lengthScore = Math.min(line.length, 40) / 40;
+      const earlyBias = index === 0 ? 0.15 : index === 1 ? 0.08 : 0;
+      const upperScore = Math.min(Math.max(upperRatio - 0.35, 0), 0.65);
+      const wordScore = hasWord ? 0.35 : 0;
+      return { line, index, score: lengthScore + upperScore + wordScore + earlyBias };
+    })
+    .sort((a, b) => b.score - a.score);
 
+  const best = scored[0]?.line;
+  const bestIndex = scored[0]?.index ?? 0;
+  const secondBestSameBlock = candidates[bestIndex + 1];
+
+  // Many labels split the name across 1-2 lines (e.g. "JAQUETA FEMININA" + "ADULTO").
   const merged =
-    second && first.length <= 28 && second.length <= 28 ? `${first} ${second}` : first;
+    best &&
+    secondBestSameBlock &&
+    best.length <= 28 &&
+    secondBestSameBlock.length <= 28
+      ? `${best} ${secondBestSameBlock}`
+      : best;
 
-  return merged.replace(/\s{2,}/g, " ").trim();
+  return merged?.replace(/\s{2,}/g, " ").trim();
 }
 
 function parsePrice(text: string) {

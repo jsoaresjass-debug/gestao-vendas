@@ -200,6 +200,7 @@ function mapSaleToHistoryRow(sale: SaleWithInstallmentsRecord): SaleHistoryRow {
   const installments = sale.sale_installments ?? [];
   const totalAmount = toNumber(sale.total_amount);
   const outstandingAmount = toNumber(sale.outstanding_amount);
+  const today = new Date();
 
   if (!installments.length) {
     const openInstallmentCount = outstandingAmount > 0 ? 1 : 0;
@@ -215,8 +216,31 @@ function mapSaleToHistoryRow(sale: SaleWithInstallmentsRecord): SaleHistoryRow {
       openInstallmentCount,
       paidInstallmentCount,
       installmentNominalValue: totalAmount,
+      nextInstallmentId: null,
+      nextInstallmentLabel: null,
+      nextInstallmentDueDate: null,
+      isNextInstallmentOverdue: false,
+      openInstallments: [],
     };
   }
+
+  const pendingInstallments = installments
+    .filter((installment) => toNumber(installment.paid_amount) < toNumber(installment.amount))
+    .sort((a, b) => a.installment_number - b.installment_number);
+  const nextInstallment = pendingInstallments[0];
+  const openInstallments = pendingInstallments.map((installment) => {
+    const amount = toNumber(installment.amount);
+    const paid = toNumber(installment.paid_amount);
+    const remaining = Math.max(amount - paid, 0);
+    const isOverdue = remaining > 0 && new Date(`${installment.due_date}T00:00:00`) < today;
+    return {
+      id: installment.id,
+      label: `${installment.installment_number}/${installment.total_installments}`,
+      remaining,
+      dueDate: installment.due_date,
+      isOverdue,
+    };
+  });
 
   const openInstallmentCount = installments.filter(
     (installment) => toNumber(installment.paid_amount) < toNumber(installment.amount),
@@ -242,6 +266,15 @@ function mapSaleToHistoryRow(sale: SaleWithInstallmentsRecord): SaleHistoryRow {
     openInstallmentCount,
     paidInstallmentCount,
     installmentNominalValue,
+    nextInstallmentId: nextInstallment?.id ?? null,
+    nextInstallmentLabel: nextInstallment
+      ? `${nextInstallment.installment_number}/${nextInstallment.total_installments}`
+      : null,
+    nextInstallmentDueDate: nextInstallment?.due_date ?? null,
+    isNextInstallmentOverdue: nextInstallment
+      ? new Date(`${nextInstallment.due_date}T00:00:00`) < today
+      : false,
+    openInstallments,
   };
 }
 
