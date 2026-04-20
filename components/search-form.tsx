@@ -10,11 +10,11 @@ export function SearchForm({ defaultValue }: SearchFormProps) {
         name="q"
         defaultValue={defaultValue}
         placeholder="Buscar por nome, telefone ou e-mail"
-        className="min-w-0 flex-1 rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-slate-950"
+        className="min-w-0 flex-1 rounded-[1.25rem] border border-[var(--border)] px-4 py-3.5 text-[15px] text-[var(--foreground)] outline-none transition placeholder:text-[#a28e81] focus:border-[#b68f79] focus:bg-white"
       />
       <button
         type="submit"
-        className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-950"
+        className="rounded-[1.25rem] border border-[var(--border)] bg-white/70 px-5 py-3.5 text-sm font-semibold uppercase tracking-[0.18em] text-[var(--foreground)] transition hover:border-[#c6a795] hover:bg-white"
       >
         Buscar
       </button>

@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #f6f1eb;
+  --foreground: #241c18;
+  --muted: #75645b;
+  --surface: rgba(255, 252, 248, 0.82);
+  --surface-strong: #fffaf5;
+  --surface-soft: #f2e9e0;
+  --border: rgba(84, 60, 47, 0.12);
+  --accent: #312420;
+  --accent-soft: #d9c1b4;
+  --success: #4f6d57;
+  --danger: #a04f58;
 }
 
 html {
@@ -11,9 +20,29 @@ html {
 
 body {
   min-height: 100vh;
-  background: radial-gradient(circle at top, #e2e8f0, #f8fafc 30%);
+  background:
+    radial-gradient(circle at top, rgba(216, 188, 170, 0.42), transparent 28%),
+    linear-gradient(135deg, #f8f1ea 0%, #f4ece4 45%, #efe4d9 100%);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.26)),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 118px,
+      rgba(125, 92, 74, 0.028) 118px,
+      rgba(125, 92, 74, 0.028) 119px
+    );
+  pointer-events: none;
+  z-index: -1;
 }
 
 a {
@@ -25,6 +54,24 @@ button,
 input,
 select {
   font: inherit;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: -0.03em;
+}
+
+input,
+select,
+textarea {
+  background: rgba(255, 251, 247, 0.82);
+}
+
+::selection {
+  background: rgba(177, 144, 125, 0.28);
 }
 
 summary::-webkit-details-marker {
