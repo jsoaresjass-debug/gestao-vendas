@@ -20,3 +20,14 @@ export async function requireUser() {
 
   return user;
 }
+
+export async function requireUserEmail(allowedEmail: string) {
+  const user = await requireUser();
+  const email = user.email?.toLowerCase() ?? "";
+
+  if (email !== allowedEmail.toLowerCase()) {
+    redirect("/home");
+  }
+
+  return user;
+}

@@ -27,13 +27,17 @@ export async function loginAction(_: ActionState, formData: FormData): Promise<A
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
     return { error: "Nao foi possivel entrar. Verifique e-mail e senha." };
   }
 
   revalidatePath("/", "layout");
+  const email = data.user?.email?.toLowerCase() ?? "";
+  if (email === "cadastro@modas.com") {
+    redirect("/mobile/cadastro-produto");
+  }
   redirect("/home");
 }
 

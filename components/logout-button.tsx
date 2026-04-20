@@ -5,7 +5,7 @@ export function LogoutButton() {
     <form action={logoutAction}>
       <button
         type="submit"
-        className="rounded-full border border-[var(--border)] bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1c1512]"
+        className="w-full rounded-[0.9rem] border border-white/30 bg-white/15 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-white/25"
       >
         Sair
       </button>

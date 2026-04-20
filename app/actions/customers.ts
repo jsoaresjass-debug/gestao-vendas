@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -95,5 +96,5 @@ export async function updateCustomerAction(
 
   revalidatePath("/cadastro");
   revalidatePath("/home");
-  return { success: "Cadastro atualizado com sucesso." };
+  redirect("/cadastro?atualizado=1");
 }

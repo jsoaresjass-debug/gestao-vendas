@@ -7,6 +7,8 @@ import type { Customer } from "@/lib/types";
 
 type CustomerFormProps = {
   customer?: Customer | null;
+  /** Shown after redirect from successful update (Nova cliente card). */
+  flashSuccess?: string;
 };
 
 const initialState = {
@@ -14,7 +16,7 @@ const initialState = {
   success: "",
 };
 
-export function CustomerForm({ customer }: CustomerFormProps) {
+export function CustomerForm({ customer, flashSuccess }: CustomerFormProps) {
   const action = customer ? updateCustomerAction : createCustomerAction;
   const [state, formAction, isPending] = useActionState(action, initialState);
   const inputClassName =
@@ -105,6 +107,12 @@ export function CustomerForm({ customer }: CustomerFormProps) {
       {state?.success ? (
         <p className="md:col-span-2 rounded-[1.25rem] border border-[#cadacb] bg-[#f2f8f2] px-4 py-3 text-sm text-[#456050]">
           {state.success}
+        </p>
+      ) : null}
+
+      {!customer && flashSuccess ? (
+        <p className="md:col-span-2 rounded-[1.25rem] border border-[#cadacb] bg-[#f2f8f2] px-4 py-3 text-sm text-[#456050]">
+          {flashSuccess}
         </p>
       ) : null}
     </form>

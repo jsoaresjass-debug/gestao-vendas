@@ -8,14 +8,14 @@ type PanelProps = {
 
 export function Panel({ title, description, children }: PanelProps) {
   return (
-    <section className="rounded-[1.9rem] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[0_20px_50px_rgba(79,54,40,0.08)] backdrop-blur md:p-7">
-      <div className="mb-5 border-b border-[rgba(84,60,47,0.08)] pb-4">
-        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--muted)]">
+    <section className="rounded-[1.45rem] border border-[var(--border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(240,248,255,0.96))] p-4 shadow-[0_16px_30px_rgba(103,139,184,0.08)] backdrop-blur md:p-4.5">
+      <div className="mb-3 border-b border-[rgba(129,172,220,0.14)] pb-3">
+        <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
           Ingria Modas
         </p>
-        <h2 className="text-[2rem] leading-none text-[var(--foreground)]">{title}</h2>
+        <h2 className="text-[1.35rem] leading-none text-[var(--foreground)]">{title}</h2>
         {description ? (
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)]">{description}</p>
+          <p className="mt-1.5 max-w-2xl text-[11px] leading-[1.1rem] text-[var(--muted)]">{description}</p>
         ) : null}
       </div>
       {children}
