@@ -46,16 +46,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </p>
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-            <Link
-              href="/nova-venda"
-              className="inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-5 py-3 text-center text-xs font-semibold uppercase tracking-[0.16em] text-white shadow-[0_10px_24px_rgba(76,142,217,0.35)] transition hover:bg-[#3e7fc8]"
-            >
-              Nova venda
-            </Link>
-            <div className="min-w-fit">
-              <HomePeriodFilter />
-            </div>
+          <div className="min-w-fit">
+            <HomePeriodFilter />
           </div>
         </div>
       </header>
@@ -80,7 +72,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </div>
         </div>
 
-        <form className="mt-5 flex flex-col gap-3 md:flex-row">
+        <form className="mt-5 flex flex-col gap-3 md:flex-row md:items-center">
           <div className="relative min-w-0 flex-1">
             <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]">
               🔎
@@ -94,12 +86,28 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             />
           </div>
           <input type="hidden" name="period" value={selectedPeriod} />
-          <button
-            type="submit"
-            className="rounded-[1.2rem] bg-[var(--foreground)] px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-[#0f2640]"
-          >
-            Buscar
-          </button>
+          <div className="relative flex shrink-0 items-center justify-end md:w-auto">
+            <Link
+              href="/nova-venda"
+              aria-label="Nova venda"
+              className="absolute -top-14 right-0 inline-flex h-12 w-12 items-center justify-center rounded-[1rem] bg-[var(--foreground)] text-white shadow-[0_14px_34px_rgba(22,50,79,0.22)] transition hover:bg-[#0f2640] active:scale-95"
+            >
+              <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <path
+                  d="M12 5v14M5 12h14"
+                  stroke="#ffffff"
+                  strokeWidth="2.6"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </Link>
+            <button
+              type="submit"
+              className="h-12 rounded-[1.2rem] bg-[var(--foreground)] px-6 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-[#0f2640]"
+            >
+              Buscar
+            </button>
+          </div>
         </form>
 
         <div className="mt-5">
