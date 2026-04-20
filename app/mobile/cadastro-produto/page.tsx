@@ -1,8 +1,8 @@
 import { MobileProductForm } from "@/components/mobile-product-form";
-import { requireUserEmail } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 
 export default async function MobileCadastroProdutoPage() {
-  await requireUserEmail("cadastro@modas.com");
+  await requireUser();
 
   return (
     <main className="mx-auto w-full max-w-lg space-y-4 px-4 py-6">

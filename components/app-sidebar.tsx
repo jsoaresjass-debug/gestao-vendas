@@ -10,6 +10,7 @@ const navItems = [
   { href: "/nova-venda", label: "Nova venda", shortLabel: "NV" },
   { href: "/cadastro", label: "Clientes", shortLabel: "CL" },
   { href: "/produtos", label: "Produtos", shortLabel: "PR" },
+  { href: "/mobile/cadastro-produto", label: "Cadastro mobile", shortLabel: "MB" },
 ] as const;
 
 type AppSidebarProps = {
