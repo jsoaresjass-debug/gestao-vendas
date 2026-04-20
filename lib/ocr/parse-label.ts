@@ -76,8 +76,9 @@ export function parseLabelText(input: string): ParsedLabel {
   const name = pickMostLikelyName(lines);
 
   // In this app, "barcode" is the label code used at checkout.
-  // Prefer Ref:XXXXX when present; otherwise use the digit barcode.
-  const barcode = ref ?? barcodeDigits;
+  // For checkout, we want the horizontal barcode digits (EAN-13) when available.
+  // Fall back to Ref:XXXXX only if we couldn't read the barcode digits.
+  const barcode = barcodeDigits ?? ref;
 
   return {
     rawText,

@@ -134,7 +134,7 @@ export function MobileProductForm() {
 
           <div>
             <label htmlFor="barcode" className={labelClassName}>
-              Codigo da etiqueta (Ref)
+              Codigo de barras
             </label>
             <input
               id="barcode"
@@ -143,7 +143,7 @@ export function MobileProductForm() {
               onChange={(e) => setBarcode(e.target.value)}
               required
               className={inputClassName}
-              placeholder="Ex.: 184404"
+              placeholder="Ex.: 7901008776535"
             />
           </div>
 
